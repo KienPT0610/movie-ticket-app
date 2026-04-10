@@ -6,13 +6,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Platform } from "react-native";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB_EoiyS_Vs53WsKwgben4iA2tOpC2DP44",
-  authDomain: "movie-ticket-app-85ab6.firebaseapp.com",
-  projectId: "movie-ticket-app-85ab6",
-  storageBucket: "movie-ticket-app-85ab6.firebasestorage.app",
-  messagingSenderId: "214827198377",
-  appId: "1:214827198377:web:b41df152368f5909dd06b8",
-  measurementId: "G-DNHDZJMWCY"
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
 const app = initializeApp(firebaseConfig);
