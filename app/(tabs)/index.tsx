@@ -1,98 +1,155 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, RefreshControl } from 'react-native';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../firebaseConfig';
+import { useRouter } from 'expo-router';
+import { seedData } from '../../utils/seed';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const [movies, setMovies] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const fetchMovies = async () => {
+    setLoading(true);
+    try {
+      const querySnapshot = await getDocs(collection(db, 'movies'));
+      const moviesList = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setMovies(moviesList);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMovies();
+  }, []);
+
+  const handleSeed = async () => {
+    alert('Đang seed dữ liệu, vui lòng đợi...');
+    const success = await seedData();
+    if(success) {
+      alert('Seed thành công!');
+      fetchMovies();
+    }
+  };
+
+  const renderMovie = ({ item }: { item: any }) => (
+    <TouchableOpacity 
+      style={styles.movieCard}
+      onPress={() => router.push(`/movie/${item.id}`)}
+    >
+      <Image source={{ uri: item.posterUrl }} style={styles.poster} />
+      <View style={styles.movieInfo}>
+        <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
+        <Text style={styles.genre}>{item.genre}</Text>
+        <Text style={styles.rating}>⭐ {item.rating}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Now Playing</Text>
+        {movies.length === 0 && !loading && (
+          <TouchableOpacity style={styles.seedButton} onPress={handleSeed}>
+            <Text style={styles.seedButtonText}>Tạo Dữ liệu Mẫu</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+      
+      <FlatList
+        data={movies}
+        keyExtractor={(item) => item.id}
+        renderItem={renderMovie}
+        numColumns={2}
+        contentContainerStyle={styles.listContainer}
+        refreshControl={
+          <RefreshControl
+            refreshing={loading}
+            onRefresh={fetchMovies}
+            tintColor="#E50914"
+          />
+        }
+        ListEmptyComponent={
+          !loading ? <Text style={styles.emptyText}>Chưa có phim nào. Bấm nút Tạo Dữ liểu Mẫu.</Text> : null
+        }
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 8,
+    paddingHorizontal: 15,
+    paddingTop: 60,
+    paddingBottom: 15,
+    backgroundColor: '#141414',
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  seedButton: {
+    backgroundColor: '#333',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 5,
   },
+  seedButtonText: {
+    color: '#fff',
+    fontSize: 12,
+  },
+  listContainer: {
+    padding: 10,
+  },
+  movieCard: {
+    flex: 1,
+    margin: 8,
+    backgroundColor: '#141414',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  poster: {
+    width: '100%',
+    aspectRatio: 2/3,
+  },
+  movieInfo: {
+    padding: 10,
+  },
+  title: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  genre: {
+    color: '#B3B3B3',
+    fontSize: 12,
+    marginBottom: 4,
+  },
+  rating: {
+    color: '#E50914',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  emptyText: {
+    color: '#fff',
+    textAlign: 'center',
+    marginTop: 50,
+  }
 });

@@ -1,33 +1,33 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-
 import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: '#E50914', // Netflix Red
+        tabBarInactiveTintColor: '#B3B3B3',
+        tabBarStyle: {
+          backgroundColor: '#141414',
+          borderTopColor: '#2A2A2A',
+        },
         headerShown: false,
         tabBarButton: HapticTab,
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Phim',
+          tabBarIcon: ({ color }) => <Ionicons size={28} name="film" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="tickets"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Vé của tôi',
+          tabBarIcon: ({ color }) => <Ionicons size={28} name="ticket" color={color} />,
         }}
       />
     </Tabs>
