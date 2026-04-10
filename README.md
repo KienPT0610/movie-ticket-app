@@ -1,50 +1,64 @@
-# Welcome to your Expo app 👋
+# Movie Ticket App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Ứng dụng Movie Ticket App được xây dựng với React Native (Expo) và Firebase, hỗ trợ chức năng đăng nhập, xem danh sách phim, đặt ghế và gửi thông báo mua vé.
 
-## Get started
+Dưới đây là một số hình ảnh demo trực quan về các tính năng của ứng dụng cùng với cấu trúc cơ sở dữ liệu trên Firebase.
 
-1. Install dependencies
+## 📱 Giao diện Ứng dụng (App UI)
 
-   ```bash
-   npm install
-   ```
+### 1. Màn hình Đăng nhập (Login)
+Màn hình xác thực người dùng sử dụng Firebase Authentication. Người dùng có thể Đăng nhập hoặc Đăng ký tài khoản bằng Email và Mật khẩu. Giao diện được thiết kế với phong cách Dark Theme nổi bật.
+![Login Screen](./demo/login.jpg)
 
-2. Start the app
+### 2. Danh sách Phim (Movie List)
+Trang chủ hiển thị danh sách các bộ phim đang được chiếu tại rạp. Dữ liệu được fetch trực tiếp (real-time) từ Firestore.
+![List Movie](./demo/list-movie.jpg)
 
-   ```bash
-   npx expo start
-   ```
+### 3. Chi tiết Phim (Movie Detail)
+Màn hình hiển thị thông tin chi tiết của phim (thời lượng, đánh giá, thể loại, mô tả) và danh sách các suất chiếu được phân loại theo rạp (Theaters).
+![Movie Detail](./demo/movie-detail.jpg)
 
-In the output, you'll find options to open the app in a
+### 4. Đặt ghế (Select Seat)
+Sơ đồ ghế ngồi theo layout trực quan cho phép người dùng chọn số lượng ghế tùy ý. Tự động tính toán tổng tiền thanh toán dựa trên số ghế đang chọn.
+![Select Seat](./demo/select-seat.jpg)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### 5. Ghế đã đặt bị vô hiệu hóa (Disabled Seat Selected)
+Những ghế nào đã được thanh toán và lưu vào Firestore sẽ tự động chuyển màu tối (opacity) và bị vô hiệu hóa, không cho các người dùng khác ấn vào chọn đè lên.
+![Disabled Seat Selected](./demo/disable-seat-sellected.jpg)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### 6. Thông báo mua vé (Buy Ticket Notification)
+Ngay sau khi thanh toán thành công, hệ thống gửi thông báo (Local Push Notification bằng Expo Notifications) chớp nổi trên màn hình báo cáo trạng thái mã đặt vé và số ghế.
+![Buy Ticket Notification](./demo/buy-ticket-notification.jpg)
 
-## Get a fresh project
+### 7. Vé của tôi (List Ticket)
+Trang danh sách các vé đã đặt, truy xuất theo mã User ID từ Firebase để cá nhân hóa chỉ hiện vé của người đang dùng.
+![List Ticket](./demo/list-ticket.jpg)
 
-When you're ready, run:
+---
 
-```bash
-npm run reset-project
-```
+## 🗄️ Cấu trúc CSDL Firebase (Firestore Architecture)
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Dưới đây là cấu trúc các Collection được mô phỏng trên Firebase Firestore để cấp dữ liệu cho ứng dụng.
 
-## Learn more
+### 1. Phim (Movies Collection)
+Lưu trữ thông tin metadata của các phim.
+![Movies Collection](./demo/firebase-demo/movies-collection.png)
 
-To learn more about developing your project with Expo, look at the following resources:
+### 2. Rạp chiếu (Theater Collection)
+Lưu trữ thông tin danh sách các rạp chiếu phim (tên, địa điểm).
+![Theater Collection](./demo/firebase-demo/theater-collection.png)
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### 3. Suất chiếu (Show Time Collection)
+Relational collection gom nhóm giữa Rạp và Phim tại một thời điểm chiếu xác định.
+![Show Time Collection](./demo/firebase-demo/show-time-collection.png)
 
-## Join the community
+### 4. Người dùng (User Collection)
+Lưu thông tin metadata về người sử dụng sau khi đăng nhập thành công.
+![User Collection](./demo/firebase-demo/user-collection.png)
 
-Join our community of developers creating universal apps.
+### 5. Vé (Ticket Collection)
+Lưu thông tin vé đã mua của người dùng, liên kết tới mã Show Time để xác định phim và rạp, cùng danh sách các ghế đã chọn.
+![Ticket Collection](./demo/firebase-demo/ticket-collection.png)
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Reference
+Ảnh được lưu trữ ở thư mục /`demo/**`
